@@ -25,7 +25,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
     private static final int MAX_AVG_CONSIDERATION = 3;
 
     private static final double SLEEP_NERF_AMOUNT = -300;
-    private static final double SLEEP_NERF_BEGIN = 50;
+    private static final double SLEEP_NERF_BEGIN = 30;
 
     //OBSOLETE
     // private static final double SLEEP_NERF_END = 24;
@@ -49,12 +49,12 @@ public class AdvancedRatingStrategy implements CargoStrategy {
         Optional<CargoOffer> bestOffer = getBestOffer();
         if (bestOffer.isPresent() && ableToDeliverWithoutSleeping(request, bestOffer.get())) {
             return DecideResponse.deliver(bestOffer.get().getUid());
-        } else if (bestOffer.isPresent()) {
+        } else if (bestOffer.isPresent() && request.getTruck().getHoursSinceFullRest() != 0) {
             return DecideResponse.sleep(8);
         }
         else {
-            //Drive to nice city maybe?? TODO wait for peppi implementation
-            return DecideResponse.sleep(8);
+            //Drive to nice city maybe?? TODO wait for peppi implementationy
+            return DecideResponse.route("Berlin");
         }
     }
 
@@ -78,7 +78,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
 //        double scalingFactor = 0-Math.pow(timeOverSleepLimit / timeMaxOverworkExpected,2);
 //        var sleepingPenalizeAmount = SLEEP_NERF_AMOUNT * scalingFactor;
 
-        rating += ableToDeliverWithoutSleeping(request, offer) ? 0 : SLEEP_NERF_AMOUNT;
+        //rating += ableToDeliverWithoutSleeping(request, offer) ? 0 : SLEEP_NERF_AMOUNT;
         return rating;
     }
 
