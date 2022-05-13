@@ -1,6 +1,8 @@
 package com.trustbit.truckagent;
 
 import com.trustbit.truckagent.model.*;
+import com.trustbit.truckagent.strategies.CargoStrategy;
+import com.trustbit.truckagent.strategies.MostValuableCargoStrategy;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,11 +16,7 @@ public class TruckAgentController {
      */
     @PostMapping("/decide")
     public DecideResponse decide(@RequestBody DecideRequest request) {
-        // Always deliver the first cargo available, otherwise sleep until one is available
-        if(!request.getOffers().isEmpty()) {
-            return DecideResponse.deliver(request.getOffers().get(0).getUid());
-        }
-
-        return DecideResponse.sleep(1);
+        CargoStrategy strategy = new MostValuableCargoStrategy();
+        return strategy.decide(request);
     }
 }
