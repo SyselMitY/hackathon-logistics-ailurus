@@ -13,7 +13,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
 
     //Time/Distance to get to the cargo
     private static final double TO_CARGO_TIME_KM_BALANCE = 80.0;
-    private static final double TO_CARGO_COEF = -0.2;
+    private static final double TO_CARGO_COEF = -4.0;
 
     //Price per Time/Distance to deliver the cargo
     private static final double PRICE_TIME_KM_BALANCE = .01;
