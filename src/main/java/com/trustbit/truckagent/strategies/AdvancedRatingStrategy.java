@@ -12,20 +12,20 @@ import java.util.Optional;
 public class AdvancedRatingStrategy implements CargoStrategy {
 
     //Time/Distance to get to the cargo
-    private static final double TO_CARGO_TIME_KM_BALANCE = 2.0;
-    private static final double TO_CARGO_COEF = -0.4;
+    private static final double TO_CARGO_TIME_KM_BALANCE = 80.0;
+    private static final double TO_CARGO_COEF = -0.2;
 
     //Price per Time/Distance to deliver the cargo
-    private static final double PRICE_TIME_KM_BALANCE = .05;
-    private static final double PRICE_PER_UNIT_COEF = 30.0;
+    private static final double PRICE_TIME_KM_BALANCE = .01;
+    private static final double PRICE_PER_UNIT_COEF = 60.0;
 
     //Deliveries with better Offers at the destination should be rated higher
     private static final int CARGO_RECURSION_DEPTH = 3;
     private static final double CARGO_RECURSIVE_COEF = 6.5;
     private static final int MAX_AVG_CONSIDERATION = 3;
 
-    private static final double SLEEP_NERF_AMOUNT = -400;
-    private static final double SLEEP_NERF_BEGIN = 17;
+    private static final double SLEEP_NERF_AMOUNT = -300;
+    private static final double SLEEP_NERF_BEGIN = 50;
 
     //OBSOLETE
     // private static final double SLEEP_NERF_END = 24;
