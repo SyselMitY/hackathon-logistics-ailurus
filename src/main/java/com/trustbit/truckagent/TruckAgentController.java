@@ -1,6 +1,7 @@
 package com.trustbit.truckagent;
 
 import com.trustbit.truckagent.model.*;
+import com.trustbit.truckagent.strategies.AdvancedRatingStrategy;
 import com.trustbit.truckagent.strategies.CargoStrategy;
 import com.trustbit.truckagent.strategies.MostValuableCargoPerTimeStrategy;
 import com.trustbit.truckagent.strategies.MostValuableCargoStrategy;
@@ -17,7 +18,7 @@ public class TruckAgentController {
      */
     @PostMapping("/decide")
     public DecideResponse decide(@RequestBody DecideRequest request) {
-        CargoStrategy strategy = new MostValuableCargoPerTimeStrategy();
+        CargoStrategy strategy = new AdvancedRatingStrategy();
         return strategy.decide(request);
     }
 }
