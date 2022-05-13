@@ -25,7 +25,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
     private static final int MAX_AVG_CONSIDERATION = 3;
 
     private static final double SLEEP_NERF_AMOUNT = -300;
-    private static final double SLEEP_NERF_BEGIN = 30;
+    private static final double SLEEP_NERF_BEGIN = 16;
 
     //OBSOLETE
     // private static final double SLEEP_NERF_END = 24;
