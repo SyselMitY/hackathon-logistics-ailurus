@@ -10,12 +10,17 @@ import java.util.Optional;
 
 public class AdvancedRatingStrategy implements CargoStrategy {
 
-    private static final double ETA_TO_CARGO_COEF = -1.0;
-    private static final double PRICE_PER_TIME_COEF = -0.5;
-    private static final double KM_TO_CARGO_COEF = -0.1;
-    private static final double PRICE_PER_KM_COEF = -0.005;
+    //Time/Distance to get to the cargo
+    private static final double ETA_TO_CARGO_COEF = -4.0;
+    private static final double KM_TO_CARGO_COEF = -1.0;
+
+    //Price per Time/Distance to deliver the cargo
+    private static final double PRICE_PER_TIME_COEF = 7.0;
+    private static final double PRICE_PER_KM_COEF = 0.5;
+
+    //Deliveries with better Offers at the destination should be rated higher
     private static final int CARGO_RECURSION_DEPTH = 1;
-    private static final double CARGO_RECURSIVE_COEF = .5;
+    private static final double CARGO_RECURSIVE_COEF = 6.0;
     private static final int MAX_AVG_CONSIDERATION = 3;
 
     private final Map<CargoOffer, Integer> cargoOfferMap;
