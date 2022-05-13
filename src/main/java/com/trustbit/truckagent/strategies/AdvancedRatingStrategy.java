@@ -21,7 +21,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
 
     //Deliveries with better Offers at the destination should be rated higher
     private static final int CARGO_RECURSION_DEPTH = 3;
-    private static final double CARGO_RECURSIVE_COEF = 6.5;
+    private static final double CARGO_RECURSIVE_COEF = .5;
     private static final int MAX_AVG_CONSIDERATION = 3;
 
     private static final double SLEEP_NERF_AMOUNT = -300;
