@@ -2,6 +2,7 @@ package com.trustbit.truckagent;
 
 import com.trustbit.truckagent.model.*;
 import com.trustbit.truckagent.strategies.CargoStrategy;
+import com.trustbit.truckagent.strategies.MostValuableCargoPerTimeStrategy;
 import com.trustbit.truckagent.strategies.MostValuableCargoStrategy;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ public class TruckAgentController {
      */
     @PostMapping("/decide")
     public DecideResponse decide(@RequestBody DecideRequest request) {
-        CargoStrategy strategy = new MostValuableCargoStrategy();
+        CargoStrategy strategy = new MostValuableCargoPerTimeStrategy();
         return strategy.decide(request);
     }
 }
