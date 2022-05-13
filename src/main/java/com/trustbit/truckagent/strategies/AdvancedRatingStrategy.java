@@ -12,17 +12,24 @@ import java.util.Optional;
 public class AdvancedRatingStrategy implements CargoStrategy {
 
     //Time/Distance to get to the cargo
-    private static final double ETA_TO_CARGO_COEF = -4.0;
-    private static final double KM_TO_CARGO_COEF = -1.0;
+    private static final double TO_CARGO_TIME_KM_BALANCE = 4.0;
+    private static final double TO_CARGO_COEF = -1;
 
     //Price per Time/Distance to deliver the cargo
-    private static final double PRICE_PER_TIME_COEF = 7.0;
-    private static final double PRICE_PER_KM_COEF = 0.5;
+    private static final double PRICE_TIME_KM_BALANCE = 14.0;
+    private static final double PRICE_PER_UNIT_COEF = 0.5;
 
     //Deliveries with better Offers at the destination should be rated higher
-    private static final int CARGO_RECURSION_DEPTH = 1;
-    private static final double CARGO_RECURSIVE_COEF = 6.0;
+    private static final int CARGO_RECURSION_DEPTH = 3;
+    private static final double CARGO_RECURSIVE_COEF = 6.5;
     private static final int MAX_AVG_CONSIDERATION = 3;
+
+    private static final double SLEEP_NERF_AMOUNT = -200;
+    private static final double SLEEP_NERF_BEGIN = 16;
+
+    //OBSOLETE
+    // private static final double SLEEP_NERF_END = 24;
+
     public static final Comparator<Map.Entry<CargoOffer, Integer>> CARGO_OFFER_COMPARATOR = Map.Entry.comparingByValue();
 
     private final Map<CargoOffer, Integer> cargoOfferMap;
@@ -39,9 +46,15 @@ public class AdvancedRatingStrategy implements CargoStrategy {
             doCargoRecursion();
         }
         Optional<CargoOffer> bestOffer = getBestOffer();
-        return bestOffer
-                .map(cargoOffer -> DecideResponse.deliver(cargoOffer.getUid()))
-                .orElseGet(() -> DecideResponse.sleep(1));
+        if (bestOffer.isPresent() && ableToDeliverWithoutSleeping(request, bestOffer.get())) {
+            return DecideResponse.deliver(bestOffer.get().getUid());
+        } else if (bestOffer.isPresent()) {
+            return DecideResponse.sleep(8);
+        }
+        else {
+            //Drive to nice city maybe?? TODO wait for peppi implementation
+            return DecideResponse.sleep(8);
+        }
     }
 
     private Optional<CargoOffer> getBestOffer() {
@@ -53,10 +66,18 @@ public class AdvancedRatingStrategy implements CargoStrategy {
 
     private int rate(DecideRequest request, CargoOffer offer) {
         int rating = 1000;
-        rating += offer.getEtaToCargo() * ETA_TO_CARGO_COEF;
-        rating += offer.getKmToCargo() * KM_TO_CARGO_COEF;
-        rating += offer.getPrice() / offer.getEtaToDeliver() * PRICE_PER_TIME_COEF;
-        rating += offer.getPrice() / offer.getKmToDeliver() * PRICE_PER_KM_COEF;
+        rating += offer.getEtaToCargo() * TO_CARGO_COEF * TO_CARGO_TIME_KM_BALANCE;
+        rating += offer.getKmToCargo() * TO_CARGO_COEF;
+        rating += offer.getPrice() / (offer.getEtaToDeliver() - offer.getEtaToCargo()) * PRICE_TIME_KM_BALANCE * PRICE_PER_UNIT_COEF;
+        rating += offer.getPrice() / (offer.getKmToDeliver() - offer.getKmToCargo()) * PRICE_PER_UNIT_COEF;
+
+//        var timeAwakeWhenDelivered = request.getTruck().getHoursSinceFullRest() + offer.getEtaToDeliver();
+//        var timeOverSleepLimit = Math.max(0, timeAwakeWhenDelivered - SLEEP_NERF_BEGIN);
+//        var timeMaxOverworkExpected = SLEEP_NERF_END- SLEEP_NERF_BEGIN;
+//        double scalingFactor = 0-Math.pow(timeOverSleepLimit / timeMaxOverworkExpected,2);
+//        var sleepingPenalizeAmount = SLEEP_NERF_AMOUNT * scalingFactor;
+
+        rating += ableToDeliverWithoutSleeping(request, offer) ? 0 : SLEEP_NERF_AMOUNT;
         return rating;
     }
 
@@ -71,10 +92,15 @@ public class AdvancedRatingStrategy implements CargoStrategy {
     private int getMaxDestRating(String source) {
 
         return (int) cargoOfferMapBeforeRecursion.entrySet().stream()
+                .filter(entry -> entry.getKey().getOrigin().equals(source))
                 .sorted(CARGO_OFFER_COMPARATOR.reversed())
                 .limit(MAX_AVG_CONSIDERATION)
                 .mapToInt(Map.Entry::getValue)
                 .average()
                 .orElse(0);
+    }
+
+    private boolean ableToDeliverWithoutSleeping(DecideRequest request, CargoOffer offer) {
+        return request.getTruck().getHoursSinceFullRest() + offer.getEtaToDeliver() < SLEEP_NERF_BEGIN;
     }
 }

@@ -10,6 +10,7 @@ public class MostValuableCargoPerTimeStrategy implements CargoStrategy {
     public DecideResponse decide(DecideRequest request) {
         var offers = request.getOffers();
         var mostValuable = offers.stream()
+                .filter(offer -> offer.getKmToCargo() < 300)
                 .max(Comparator.comparingDouble(offer -> offer.getPrice() / offer.getEtaToDeliver()))
                 .orElse(null);
         if (mostValuable == null) {
