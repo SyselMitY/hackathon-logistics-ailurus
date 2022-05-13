@@ -49,12 +49,8 @@ public class AdvancedRatingStrategy implements CargoStrategy {
         Optional<CargoOffer> bestOffer = getBestOffer();
         if (bestOffer.isPresent() && ableToDeliverWithoutSleeping(request, bestOffer.get())) {
             return DecideResponse.deliver(bestOffer.get().getUid());
-        } else if (bestOffer.isPresent() && request.getTruck().getHoursSinceFullRest() != 0) {
+        } else {
             return DecideResponse.sleep(8);
-        }
-        else {
-            //Drive to nice city maybe?? TODO wait for peppi implementationy
-            return DecideResponse.route("Berlin");
         }
     }
 
