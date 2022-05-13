@@ -4,6 +4,7 @@ import com.trustbit.truckagent.model.CargoOffer;
 import com.trustbit.truckagent.model.DecideRequest;
 import com.trustbit.truckagent.model.DecideResponse;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
     private static final int CARGO_RECURSION_DEPTH = 1;
     private static final double CARGO_RECURSIVE_COEF = 6.0;
     private static final int MAX_AVG_CONSIDERATION = 3;
+    public static final Comparator<Map.Entry<CargoOffer, Integer>> CARGO_OFFER_COMPARATOR = Map.Entry.comparingByValue();
 
     private final Map<CargoOffer, Integer> cargoOfferMap;
     private Map<CargoOffer, Integer> cargoOfferMapBeforeRecursion;
@@ -44,7 +46,7 @@ public class AdvancedRatingStrategy implements CargoStrategy {
 
     private Optional<CargoOffer> getBestOffer() {
         return cargoOfferMap.entrySet().stream()
-                .sorted((a, b) -> b.getValue() - a.getValue())
+                .sorted(CARGO_OFFER_COMPARATOR.reversed())
                 .map(Map.Entry::getKey)
                 .findFirst();
     }
@@ -61,15 +63,15 @@ public class AdvancedRatingStrategy implements CargoStrategy {
     private void doCargoRecursion() {
         //copy the map
         cargoOfferMapBeforeRecursion = new HashMap<>(cargoOfferMap);
-        cargoOfferMapBeforeRecursion.forEach((offer, rating) -> {
-            cargoOfferMap.merge(offer, (int) (getMaxDestRating(offer.getDest()) * CARGO_RECURSIVE_COEF), Integer::sum);
-        });
+        cargoOfferMapBeforeRecursion.forEach((offer, rating) ->
+                cargoOfferMap.merge(offer, (int) (getMaxDestRating(offer.getDest()) * CARGO_RECURSIVE_COEF), Integer::sum));
     }
 
     //returns the avg rating of the top n offers for a given source
     private int getMaxDestRating(String source) {
+
         return (int) cargoOfferMapBeforeRecursion.entrySet().stream()
-                .sorted((a, b) -> b.getValue() - a.getValue())
+                .sorted(CARGO_OFFER_COMPARATOR.reversed())
                 .limit(MAX_AVG_CONSIDERATION)
                 .mapToInt(Map.Entry::getValue)
                 .average()
